@@ -5,6 +5,9 @@ import com.example.productcatelogservice.dtos.ProductDto;
 import com.example.productcatelogservice.models.Product;
 import com.example.productcatelogservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +26,26 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public ProductDto getProductById(@PathVariable("id") Long id){
-        Product product = productService.getProductById(id);
-        return from(product);
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long id) {
+        try {
+            if (id == null || id == 0) {
+                throw new IllegalArgumentException("Id cannot be null");
+            }
+
+            Product product = productService.getProductById(id);
+            MultiValueMap<String, String> headers = new org.springframework.http.HttpHeaders();
+            headers.add("Custom-Header", "Custom-Value");
+
+            if (product == null) {
+                return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
+            }
+
+            ProductDto productDto = from(product);
+            return new ResponseEntity<>(productDto, headers, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/products")

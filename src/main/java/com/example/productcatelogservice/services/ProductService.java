@@ -6,6 +6,8 @@ import com.example.productcatelogservice.models.Category;
 import com.example.productcatelogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,9 +28,13 @@ public class ProductService implements IProductService {
     public Product getProductById(Long id){
         RestTemplate restTemplate = restTemplateBuilder.build();
 
-        FakeStoreProductDto fakeStoreProductDto =  restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, id).getBody();
+        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoRestTemplate =  restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, id);
 
-        Product product = from(fakeStoreProductDto);
+        if (fakeStoreProductDtoRestTemplate.getBody() == null || fakeStoreProductDtoRestTemplate.getStatusCode().equals(HttpStatusCode.valueOf(500))) {
+            return null;
+        }
+
+        Product product = from(fakeStoreProductDtoRestTemplate.getBody());
 
         return product;
 
