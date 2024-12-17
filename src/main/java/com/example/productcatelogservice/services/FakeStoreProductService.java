@@ -7,8 +7,8 @@ import com.example.productcatelogservice.models.Category;
 import com.example.productcatelogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class ProductService implements IProductService {
+@Primary
+@Service("fps")
+public class FakeStoreProductService implements IProductService {
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
@@ -84,6 +85,11 @@ public class ProductService implements IProductService {
     }
 
     private Product from(FakeStoreProductDto fakeStoreProductDto){
+
+        if (fakeStoreProductDto == null) {
+            return null;
+        }
+
         Product product = new Product();
         product.setId(fakeStoreProductDto.getId());
         product.setName(fakeStoreProductDto.getTitle());

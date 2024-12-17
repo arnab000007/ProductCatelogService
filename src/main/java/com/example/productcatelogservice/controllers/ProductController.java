@@ -41,8 +41,11 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long id) {
         try {
-            if (id == null || id <= 0) {
-                throw new IllegalArgumentException("Id cannot be null or less than or equal to 0");
+            if(id < 0) {
+                throw new IllegalArgumentException("productId is invalid");
+            }
+            else if(id == 0) {
+                throw new IllegalArgumentException("product with id 0 not accessible");
             }
 
             Product product = productService.getProductById(id);
@@ -76,11 +79,11 @@ public class ProductController {
     public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDto productDto){
         try {
             Product inputProduct = from(productDto);
-            Product updatedProduct = productService.updateProduct(id, inputProduct);
             if (id == null || id <= 0) {
                 throw new IllegalArgumentException("Id cannot be null or less than or equal to 0");
             }
 
+            Product updatedProduct = productService.updateProduct(id, inputProduct);
             if (updatedProduct == null) {
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
